@@ -35,10 +35,6 @@ server.use(
 );
 
 
-// bcrypt for encryption/decryption.
-
-
-
 // request validation middleware.
 const validateRequests = require('./middlewares/validateRequests');
 server.use(validateRequests);
@@ -48,10 +44,12 @@ server.use(validateRequests);
 const pingRoutes = require('./routes/ping');
 const webhookRoutes = require('./routes/webhook');
 const transactionRoutes = require('./routes/transactions');
+const authRoutes = require('./routes/auth');
 
 server.use("/api/ping", pingRoutes);
 server.use("/api/transactions", transactionRoutes);
 server.use("/api/webhooks", webhookRoutes);
+server.use("/api/auth", authRoutes);
 
 
 // catch-all route for undefined routes.

@@ -53,7 +53,7 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // session = authentication
+    // after signup, we displau the sign-in page.
     req.session.user = {
       id: user.id,
       role: user.role,
@@ -67,3 +67,15 @@ exports.login = async (req, res, next) => {
     next(err);
   }
 };
+
+
+// logout.
+// POST api/auth/logout
+exports.logout = (req, res) => {
+  req.session.destroy(() => {
+    res.json({
+      success: true,
+      message: 'logged out successfully.'
+    })
+  })
+}
