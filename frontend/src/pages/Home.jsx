@@ -1,5 +1,5 @@
-import { useState } from 'react';
- 
+import { useState } from 'react'; 
+
 const BACKEND_URL = 'http://localhost:3000';
 
 const Home = () => {

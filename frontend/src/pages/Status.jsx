@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { authHandler } from "../utils/authApi";
 
 const BACKEND_URL = "http://localhost:3000";
 
-function Status({ initialTransactionId }) {
+async function Status({ initialTransactionId }) {
   const [transactionId, setTransactionId] = useState(initialTransactionId || "");
   const [statusLogs, setStatusLogs] = useState([]);
   const [currentStatus, setCurrentStatus] = useState(null);
   const intervalRef = useRef(null);
 
+  const data = await authHandler(`api/transactions/${transactionId}/status`);
+  
   const fetchStatus = async () => {
     if (!transactionId) return;
 

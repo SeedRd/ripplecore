@@ -40,6 +40,12 @@ const validateRequests = require('./middlewares/validateRequests');
 server.use(validateRequests);
 
 
+// authentication and authorisation.
+const authenticate = require('./middlewares/authenticate');
+const authorize = require('./middlewares/authorize');
+server.use(authenticate); server.use(authorize);
+
+
 // code for routes .
 const pingRoutes = require('./routes/ping');
 const webhookRoutes = require('./routes/webhook');

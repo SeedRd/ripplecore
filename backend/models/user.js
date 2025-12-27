@@ -1,6 +1,6 @@
 // user table ke sabhi SQL operations yhi honge.
 
-const db = require('..config/db');
+const db = require('../config/db');
 
 exports.findByEmail = (email) => {
     return new Promise((resolve, reject) => {
