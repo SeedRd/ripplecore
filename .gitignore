@@ -1,0 +1,13 @@
+# .gitignore file.
+
+*.db
+env.js
+
+.DS_Store
+.vscode/
+
+backend/node_modules/
+
+backend/db/ripplecore.db
+
+frontend/node_modules/
