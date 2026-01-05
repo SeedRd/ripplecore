@@ -1,26 +1,25 @@
 import { useEffect, useState } from "react";
+import { authHandler } from "../utils/authApi";
 
-const BACKEND_URL = "http://localhost:3000";
-
-export default function Transactions() {
-  const [transactions, setTransactions] = useState([]);
+function Transactions({ user }) {
+  const [txns, setTxns] = useState([]);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/transactions`)
-      .then(res => res.json())
-      .then(setTransactions);
+    authHandler('/api/transactions')
+      .then(setTxns)
+      .catch(err => alert(err.message));
   }, []);
 
   return (
     <div>
-      <h2>All Transactions</h2>
+      <h3>{user.role === 'admin' ? 'All Transactions' : 'My Transactions'}</h3>
       <ul>
-        {transactions.map(txn => (
-          <li key={txn.id}>
-            {txn.id} — ₹{txn.amount} — {txn.status}
-          </li>
+        {txns.map(t => (
+          <li key={t.id}>{t.id} — {t.status}</li>
         ))}
       </ul>
     </div>
   );
 }
+
+export default Transactions;

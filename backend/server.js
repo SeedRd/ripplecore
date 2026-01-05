@@ -9,6 +9,7 @@ server.use(
   cors({
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
+    credentials: true,
     allowedHeaders: ["Content-Type"],
   })
 );
@@ -30,6 +31,7 @@ server.use(
       httpOnly: true,
       secure: false, // true in HTTPS
       maxAge: 60 * 60 * 1000, // 1 hour
+      sameSite: 'lax',
     },
   })
 );
@@ -42,8 +44,6 @@ server.use(validateRequests);
 
 // authentication and authorisation.
 const authenticate = require('./middlewares/authenticate');
-const authorize = require('./middlewares/authorize');
-server.use(authenticate); server.use(authorize);
 
 
 // code for routes .
@@ -53,7 +53,7 @@ const transactionRoutes = require('./routes/transactions');
 const authRoutes = require('./routes/auth');
 
 server.use("/api/ping", pingRoutes);
-server.use("/api/transactions", transactionRoutes);
+server.use("/api/transactions", authenticate, transactionRoutes);
 server.use("/api/webhooks", webhookRoutes);
 server.use("/api/auth", authRoutes);
 

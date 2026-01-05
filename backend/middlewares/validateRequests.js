@@ -23,12 +23,6 @@ const validateRequests = (req, res, next) => {
         error: "Invalid or missing UPI ID",
       });
     };
-
-    if (note && typeof note !== "string") {
-      return res.status(417).json({
-        error: "Note must be a string",
-      });
-    };
   };
 
   // POST /api/webhook/payment

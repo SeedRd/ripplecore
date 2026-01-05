@@ -35,6 +35,7 @@ exports.createTransaction = async (req, res, next) => {
       status: "PENDING",
     });
   } catch (err) {
+    console.log(err.message);
     next(err);
   }
 };

@@ -1,39 +1,88 @@
-import { useState } from "react";
-import Ping from "./pages/Ping";
-import Home from "./pages/Home";
-import Transactions from "./pages/Transactions";
-import TransactionDetail from "./pages/TransactionDetail";
-import Status from "./pages/Status";
-import Simulate from "./pages/Simulate";
-import Header from './components/Header';
+import { useEffect, useState } from 'react';
+import { authHandler } from './utils/authApi';
 
-export default function App() {
-  const [page, setPage] = useState("ping");
+import Header from './components/Header';
+import Footer from './components/Footer';
+
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Ping from './pages/Ping';
+import Transactions from './pages/Transactions';
+import Status from './pages/Status';
+import Simulate from './pages/Simulate';
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState('login');
+  const [loading, setLoading] = useState(true);
+  const [txnId, setTxnId] = useState(null);
+
+  useEffect(() => {
+    authHandler('/api/auth/me')
+      .then((data) => {
+        setUser(data);
+        log(data);
+        setPage('home');
+      })
+      .catch(() => {
+        setUser(null);
+        setPage('login');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const logout = async () => {
+    try {
+      await authHandler('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      setTxnId(null);
+      setPage('login');
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
-    // <BrowserRouter>
+    <div>
+      <Header user={user} setPage={setPage} logout={logout} />
+      <hr />
 
-      <div>
+      {}
+      {!user && page === "login" && <Login setUser={setUser} />}
+      {!user && page === "signup" && <Signup setPage={setPage} />}
 
-        <div><Header /></div>
-        
-        <h1>RippleCore Demo.</h1>
-        <button onClick={() => setPage("ping")}>Ping</button>
-        <button onClick={() => setPage("home")}>Create</button>
-        <button onClick={() => setPage("all")}>All</button>
-        <button onClick={() => setPage("one")}>Single</button>
-        <button onClick={() => setPage("status")}>Status</button>
-        <button onClick={() => setPage("simulate")}>Simulate</button>
+      {}
+      {user && page === "home" && (
+        <>
+          <Home onTransactionCreated={setTxnId} />
+          {txnId && <Status transactionId={txnId} />}
+        </>
+      )}
 
-        <hr />
+      {}
+      {user && page === "ping" && <Ping />}
+      {user && page === "transactions" && (
+        <Transactions user={user} />
+      )}
 
-        {page === "ping" && <Ping />}
-        {page === "home" && <Home />}
-        {page === "all" && <Transactions />}
-        {page === "one" && <TransactionDetail />}
-        {page === "status" && <Status />}
-        {page === "simulate" && <Simulate />}
-      </div>
-    // </BrowserRouter>
+      {}
+      {user && user.role === "admin" && page === "simulate" && (
+        <Simulate />
+      )}
+
+      {}
+      {!user && page !== "login" && page !== "signup" && (
+        <Login setUser={setUser} />
+      )}
+
+      <Footer />
+    </div>
   );
 }
+
+export default App;

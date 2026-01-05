@@ -1,39 +1,72 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-const Login = ({ onLogin }) => {
+const BACKEND_URL = "http://localhost:3000";
 
-    const BACKEND_URL = 'http://localhost:3000';
+function Login({ setUser }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const [cred, setCred] = useState({
-        email: '',
-        password: ''
+  const submit = async () => {
+  if (!email || !password) {
+    alert("email and password are required.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const loginRes = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
     });
 
-    const submit = async () => {
-        const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(cred)
-        });
+    const loginData = await loginRes.json();
 
-        if (res.ok) {
-            onLogin();
-        } else {
-            alert('login failed.');
-        };
-    };
+    if (!loginRes.ok) {
+      throw new Error(loginData.error || "Login failed");
+    }
 
-    return (
-        <>
-            <h2>Login</h2>
-            <form>
-                <input placeholder="Email" onChange={(e) => setCred({...form, email: e.target.value})} />
-                <input type="password" placeholder="Password" onChange={(e) => setCred({...form, password: e.target.value})} />
-                <button onClick={submit}>LOG-IN</button>
-            </form>
-        </>
-    )
+    setUser({
+      id: loginData.id,
+      email: loginData.email,
+      role: loginData.role,
+    });
+
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  return (
+    <div>
+      <h3>Login</h3>
+
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <button onClick={submit} disabled={loading}>
+        {loading ? "logging in..." : "login"}
+      </button>
+    </div>
+  );
 }
 
 export default Login;

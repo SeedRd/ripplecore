@@ -7,31 +7,31 @@ const db = require("../config/db");
 // POST api/auth/signup
 exports.signup = async (req, res, next) => {
   try{
-    const { id, email, password, role } = req.body;
-    if(!id || !email || !password ) {
+    const { id, name, email, password, role } = req.body;
+    if(!id || !name || !email || !password ) {
       return res.status(400).json({ success: false, error: "missing required fields." });
     }
 
     // atp I haven't created any signup method for admins.
     // hence right now there is 1 super admin - me and other students.
-    if (!role) {
-      role = "STUDENT";
-    }
+    // if (!role) {
+    //   role = "STUDENT";
+    // }
 
-    const hashedPassword = bcrypt.hash(password, 14);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const query = `INSERT INTO users(id, email, password, role) VALUES(?, ?, ?, ?)`;
-    db.run(query, [id, email, hashedPassword, role], (err) => {
+    const query = `INSERT INTO users(id, name, email, password, role) VALUES(?, ?, ?, ?, ?)`;
+    db.run(query, [id, name, email, hashedPassword, role], (err) => {
       if (err) {
+        console.log(err.message);
         return res.status(400).json({ success: false, error: err.message });
       }
-      res.status(200).json({ success: true, message: 'user created successfully.' });
+      res.status(201).json({ success: true, message: 'user created successfully.' });
     });
     
   } catch (err) {
     next(err);
   }
-
 } 
  
 
@@ -43,12 +43,13 @@ exports.login = async (req, res, next) => {
 
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "invalid email credentials." });
     }
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      console.log(user.password);
+      return res.status(490).json({ error: "invalid credentials." });
     }
 
     // after signup, we displau the sign-in page.
@@ -59,7 +60,9 @@ exports.login = async (req, res, next) => {
 
     res.json({
       success: true,
-      role: user.role,
+      id: user.id,
+      email: user.email,
+      role: user.role
     });
   } catch (err) {
     next(err);
@@ -77,3 +80,14 @@ exports.logout = (req, res) => {
     })
   })
 }
+
+
+// get current user.
+// GET api/auth/me
+exports.me = (req, res) => {
+  res.json({
+    id: req.user.id,
+    email: req.user.email,
+    role: req.user.role,
+  });
+};

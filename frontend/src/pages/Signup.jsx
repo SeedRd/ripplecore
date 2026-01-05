@@ -1,38 +1,55 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from "react";
 
-const Signup = () => {
-    const BACKEND_URL = 'http://localhost:3000'
+function Signup() {
+  const [form, setForm] = useState({ role: "STUDENT" });
 
-    const [form, setForm] = useState({
-        user_id: '',
-        email: '',
-        password: ''
+  const submit = async () => {
+  if (!form.id || !form.name || !form.email || !form.password) {
+    alert('all fields required.');
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/signup", {
+      method: 'POST',
+      headers: {
+        "Content-Type": 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(form)
     });
 
-    const submit = async () => {
-        const navigate = useNavigate();
+    const data = await res.json();
 
-        await fetch(`${BACKEND_URL}/api/auth/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(form)
-        })
-
-        navigate(`${BACKEND_URL}/api/auth/login`);
+    if (!res.ok) {
+      throw new Error(data.error || 'signup failed');
     }
 
-    return (
-        <>
-            <h2>Sign-Up for RippleCore</h2>
-            <form>
-                <input type="text" placeholder='enter your registration number.' onChange={(e) => { setForm({ ...form, user_id: e.target.value }) }} />
-                <input type="text" placeholder='enter institute email.' onChange={(e) => { setForm({ ...form, email: e.target.value }) }} />
-                <input type="password" placeholder='create a password.' onChange={(e) => { setForm({ ...form, password: e.target.value }) }} />
-                <button onClick={submit}>SIGN UP AND LOGIN</button>
-            </form>
-        </>
-    )
+    alert("Signup successful. Please login.");
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+//
+  return (
+    <div>
+      <h3>Signup</h3>
+      <input placeholder="Id" onChange={e => setForm({ ...form, id: e.target.value })}/>
+      <input placeholder="Name" onChange={e => setForm({ ...form, name: e.target.value })} />
+      <input placeholder="Email" onChange={e => setForm({ ...form, email: e.target.value })} />
+      <input
+        type="password"
+        placeholder="Password"
+        onChange={e => setForm({ ...form, password: e.target.value })}
+      />
+      <select onChange={e => setForm({ ...form, role: e.target.value })}>
+        <option value="STUDENT">Student</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+      <button onClick={submit}>Signup</button>
+    </div>
+  );
 }
 
-export default Signup;
+export default Signup;//
